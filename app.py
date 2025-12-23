@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_Template, request, jsonify
 import joblib
 import numpy as np
 import os
@@ -10,7 +10,7 @@ model = joblib.load('iris_model.pkl')
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_Template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
