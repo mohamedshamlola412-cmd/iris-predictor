@@ -1,8 +1,5 @@
-
 flask
 joblib
-numpy
 scikit-learn
+numpy
 gunicorn
-keras
-tensorflow
