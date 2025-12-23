@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Iris Predictor</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        input { margin: 10px; padding: 8px; width: 100px; }
+        button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Iris Flower Classifier</h1>
+    <p>Enter the measurements below:</p>
+    <input type="number" id="s1" placeholder="Sepal Len">
+    <input type="number" id="s2" placeholder="Sepal Wid">
+    <input type="number" id="p1" placeholder="Petal Len">
+    <input type="number" id="p2" placeholder="Petal Wid">
+    <br><br>
+    <button onclick="makePrediction()">Predict Species</button>
+    <h2 id="result"></h2>
+
+    <script>
+        async function makePrediction() {
+            const features = [
+                parseFloat(document.getElementById('s1').value),
+                parseFloat(document.getElementById('s2').value),
+                parseFloat(document.getElementById('p1').value),
+                parseFloat(document.getElementById('p2').value)
+            ];
+            
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({features: features})
+            });
+            const data = await response.json();
+            const species = ["Setosa", "Versicolor", "Virginica"];
+            document.getElementById('result').innerText = "Prediction: " + species[data.prediction];
+        }
+    </script>
+</body>
+</html>
