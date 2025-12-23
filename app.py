@@ -3,13 +3,15 @@ import joblib
 import numpy as np
 import os
 
-app = Flask(__name__)
-template_folder='Templates'
+# FIXED: We merged lines 6 and 7 into one single command
+app = Flask(__name__, template_folder='Templates')
+
 # Load your model
 model = joblib.load('iris_model.pkl')
 
 @app.route('/')
 def home():
+    # This will now find index.html inside your "Templates" folder
     return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
