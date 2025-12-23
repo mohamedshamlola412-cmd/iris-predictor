@@ -2,4 +2,6 @@ flask
 joblib
 scikit-learn
 numpy
+tensorflow
+keras
 gunicorn
