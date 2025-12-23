@@ -18,7 +18,6 @@ def predict():
         data = request.get_json()
         features = np.array(data['features']).reshape(1, -1)
         prediction = model.predict(features)
-        # FIX: This line must be exactly aligned with the lines above it
         return jsonify({'prediction': int(prediction[0])})
     except Exception as e:
         return jsonify({'error': str(e)})
