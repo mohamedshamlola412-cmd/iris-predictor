@@ -1,26 +1,25 @@
-
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
 import joblib
 import numpy as np
-import os
 
 app = Flask(__name__)
 
-# This loads the 'brain' file you just saved
+# Load your model
 model = joblib.load('iris_model.pkl')
 
 @app.route('/')
 def home():
-    return "Iris Model API is Live and Running!"
+    # This line tells Flask to look in the /Templates folder for your UI
+    return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    try:
-        # Get the numbers from the user request
-        data = request.get_json()
-        features = np.array(data['features']).reshape(1, -1)
-        
-        # Make the prediction
+    data = request.get_json()
+    prediction = model.predict(np.array(data['features']).reshape(1, -1))
+    return jsonify({'prediction': int(prediction[0])})
+
+if __name__ == "__main__":
+    app.run(debug=True)
         prediction = model.predict(features)
         
         # Send the result back as JSON
