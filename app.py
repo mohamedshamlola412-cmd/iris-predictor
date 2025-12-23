@@ -3,12 +3,13 @@ import joblib
 import numpy as np
 import os
 
+# Ensuring we use your 'Templates' folder
 app = Flask(__name__, template_folder='Templates')
 
 # Load your model
 model = joblib.load('iris_model.pkl')
 
-# This dictionary translates the numbers (0, 1, 2) into names
+# Dictionary to map numbers to names
 flower_names = {0: "Setosa", 1: "Versicolor", 2: "Virginica"}
 
 @app.route('/')
@@ -20,15 +21,12 @@ def predict():
     try:
         data = request.get_json()
         features = np.array(data['features']).reshape(1, -1)
-        prediction_num = int(model.predict(features)[0])
+        prediction = int(model.predict(features)[0])
         
-        # Get the name and image URL
-        name = flower_names.get(prediction_num, "Unknown")
+        # Get the name from our dictionary
+        name = flower_names.get(prediction, "Unknown")
         
-        return jsonify({
-            'prediction': name,
-            'prediction_num': prediction_num
-        })
+        return jsonify({'prediction': name})
     except Exception as e:
         return jsonify({'error': str(e)})
 
