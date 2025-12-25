@@ -1,56 +1,51 @@
 import os
+import joblib
 import numpy as np
 from flask import Flask, request, jsonify
 
-# --- OPTIMIZATION: Disable GPU to save memory & stop CUDA errors ---
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-import tensorflow as tf
-
 app = Flask(__name__)
 
-# --- OPTIMIZATION: Load model GLOBALLY at startup ---
-# Replace 'iris_model.h5' with your actual model filename
-MODEL_PATH = 'iris_model.h5'
+# --- STEP 1: LOAD THE PKL MODEL ---
+# This matches the 'iris_model.pkl' file seen in your GitHub
+MODEL_PATH = 'iris_model.pkl'
 
 try:
-    model = tf.keras.models.load_model(MODEL_PATH)
-    print("Model loaded successfully!")
+    if os.path.exists(MODEL_PATH):
+        model = joblib.load(MODEL_PATH)
+        print("✅ Scikit-Learn model loaded successfully!")
+    else:
+        print(f"❌ Error: {MODEL_PATH} not found in GitHub.")
+        model = None
 except Exception as e:
-    print(f"Error loading model: {e}")
+    print(f"❌ Error loading model: {e}")
     model = None
 
 @app.route('/')
 def home():
-    return "Iris Predictor is Running!"
+    status = "Online" if model else "Online but MODEL MISSING"
+    return f"Iris Predictor is {status}!"
 
 @app.route('/predict', methods=['POST'])
 def predict():
     if model is None:
-        return jsonify({'error': 'Model not loaded'}), 500
+        return jsonify({'error': 'Model file missing on server'}), 500
     
     try:
-        data = request.json
-        # Expecting input like: {"features": [5.1, 3.5, 1.4, 0.2]}
+        data = request.get_json()
+        # Expects: {"features": [5.1, 3.5, 1.4, 0.2]}
         features = np.array([data['features']])
         
-        # Make prediction
+        # Scikit-learn prediction
         prediction = model.predict(features)
-        predicted_class = np.argmax(prediction, axis=1)[0]
         
-        # Map to Iris names
+        # Result mapping (Adjust names if your model uses different ones)
         species = ['Setosa', 'Versicolor', 'Virginica']
-        result = species[int(predicted_class)]
+        result = species[int(prediction[0])]
         
-        return jsonify({
-            'prediction': result,
-            'confidence': float(np.max(prediction))
-        })
+        return jsonify({'prediction': result})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
 if __name__ == "__main__":
-    # Render uses the PORT environment variable
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
