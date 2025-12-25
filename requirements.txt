@@ -1,7 +1,4 @@
 flask
-joblib
-scikit-learn
+tensorflow-cpu
 numpy
-tensorflow
-keras
 gunicorn
