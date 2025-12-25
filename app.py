@@ -5,17 +5,17 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# --- STEP 1: LOAD THE CORRECT MODEL ---
-# This looks for the .pkl file you have in GitHub
+# --- MODEL LOADING ---
+# This matches your file: iris_model.pkl
 MODEL_PATH = 'iris_model.pkl'
 
 try:
     if os.path.exists(MODEL_PATH):
-        # We use joblib because .pkl is a Scikit-Learn format
+        # joblib is used for .pkl files (Scikit-Learn)
         model = joblib.load(MODEL_PATH)
-        print("✅ Scikit-Learn model loaded successfully!")
+        print("✅ Model loaded successfully!")
     else:
-        print(f"❌ Error: {MODEL_PATH} not found. Check GitHub!")
+        print(f"❌ Error: {MODEL_PATH} not found.")
         model = None
 except Exception as e:
     print(f"❌ Error loading model: {e}")
@@ -33,13 +33,13 @@ def predict():
     
     try:
         data = request.get_json()
-        # Expecting JSON: {"features": [5.1, 3.5, 1.4, 0.2]}
+        # Expecting a list of 4 floats for the Iris features
         features = np.array([data['features']])
         
-        # Make the prediction
+        # Make prediction using the Scikit-Learn model
         prediction = model.predict(features)
         
-        # Map the numeric result to the flower name
+        # Typical Iris class mapping
         species = ['Setosa', 'Versicolor', 'Virginica']
         result = species[int(prediction[0])]
         
@@ -48,6 +48,6 @@ def predict():
         return jsonify({'error': str(e)}), 400
 
 if __name__ == "__main__":
-    # Fixes the 'No open ports' error
+    # Uses the port Render provides to avoid connection errors
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
